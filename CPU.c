@@ -10,6 +10,7 @@
 #include <inttypes.h>
 #include <arpa/inet.h>
 #include "CPU.h"
+#include "cache.h"
 
 struct trace_item * no_op_initializer();
 
@@ -39,13 +40,31 @@ int main(int argc, char **argv)
    struct bpt_entry *bp_table[64];
    const unsigned int bpt_hash = 1008;
    unsigned int bpt_index;
-
+   
+	// to keep cache statistics			
+   unsigned int I_accesses = 0;			
+   unsigned int I_misses = 0;			
+   unsigned int D_read_accesses = 0;			
+   unsigned int D_read_misses = 0;			
+   unsigned int D_write_accesses = 0;			
+   unsigned int D_write_misses = 0;
+   
+   // for cache parameters from the configuration file	
+   FILE *config_fp;
+   unsigned int I_size;
+   unsigned int I_assoc;		
+   unsigned int I_bsize;			
+   unsigned int D_size;
+   unsigned int D_assoc;			
+   unsigned int D_bsize;			
+   unsigned int mem_latency;
+   
    // Check for improper usage
    if (argc == 1 || argc > 4) {
-      fprintf(stdout, "USAGE: ./CPU <trace file> <branch prediction switch> <trace switch>\n");
-      fprintf(stdout, "(brach prediction switch) to turn on or off branch prediction table.\n");
-      fprintf(stdout, "(trace switch) to turn on or off individual item view.\n");
-      exit(0);
+      fprintf(stderr, "USAGE: ./CPU <trace file> <branch prediction switch> <trace switch>\n");
+      fprintf(stderr, "(brach prediction switch) to turn on or off branch prediction table.\n");
+      fprintf(stderr, "(trace switch) to turn on or off individual item view.\n");
+      return(1);
    }
 
    // Handle input values and set necessary values
@@ -62,7 +81,25 @@ int main(int argc, char **argv)
       for(int i= 0;i<(sizeof(bp_table)/sizeof(struct bpt_entry *));i++)
          bp_table[i]= NULL;
    }
-
+   
+   //open and read cache configuration file
+   config_fp= fopen("cache_config.txt", "r");
+   
+   if(config_fp==NULL) //if config file not found
+   {
+      fprintf(stderr, "Cache configuration file not found.\n");
+      return(1);
+   }
+   
+   fscanf(config_fp, "%u\n", &I_accesses);			
+   fscanf(config_fp, "%u\n", &I_misses);
+   fscanf(config_fp, "%u\n", &D_read_accesses);		
+   fscanf(config_fp, "%u\n", &D_read_misses);			
+   fscanf(config_fp, "%u\n", &D_write_accesses);			
+   fscanf(config_fp, "%u\n", &D_write_misses);
+   
+   fclose(config_fp);
+   
    fprintf(stdout, "\n ** opening file %s\n", trace_file_name);
 
    // Open the trace file
