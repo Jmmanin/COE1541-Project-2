@@ -9,7 +9,7 @@ struct cache_blk_t { /* note that no actual data will be stored in the cache */
 };
 
 struct cache_t {
-	// The cache is represented by a 2-D array of blocks. 
+	// The cache is represented by a 2-D array of blocks.
 	// The first dimension of the 2D array is "nsets" which is the number of sets (entries)
 	// The second dimension is "assoc", which is the number of blocks in each set.
   int nsets;					// number of sets
@@ -23,17 +23,12 @@ struct cache_t *
 	cache_create(int size, int blocksize, int assoc, int mem_latency)
 {
   int i;
-  int nblocks = 1;			// number of blocks in the cache
-  int nsets = 1;			// number of sets (entries) in the cache
-
-  // YOUR JOB: calculate the number of sets and blocks in the cache
-  //
-  // nblocks = X;
-  // nsets = Y;
+  int nblocks = (size * 1000) / blocksize;  // number of blocks in the cache
+  int nsets = nblocks / assoc;	            // number of sets (entries) in the cache
 
   struct cache_t *C = (struct cache_t *)calloc(1, sizeof(struct cache_t));
-		
-  C->nsets = nsets; 
+
+  C->nsets = nsets;
   C->assoc = assoc;
   C->mem_latency = mem_latency;
 
@@ -51,7 +46,7 @@ int cache_access(struct cache_t *cp, unsigned long address, int access_type)
   //
   // Based on "address", determine the set to access in cp and examine the blocks
   // in the set to check hit/miss and update the golbal hit/miss statistics
-  // If a miss, determine the victim in the set to replace (LRU). 
+  // If a miss, determine the victim in the set to replace (LRU).
   //
   // The function should return the hit_latency, which is 0, in case of a hit.
   // In case of a miss, the function should return mem_latency if no write back is needed.
@@ -59,5 +54,5 @@ int cache_access(struct cache_t *cp, unsigned long address, int access_type)
   // access_type (0 for a read and 1 for a write) should be used to set/update the dirty bit.
   // The LRU field of the blocks in the set accessed should also be updated.
 
-	return(cp->mem_latency);
+	return(0);
 }
