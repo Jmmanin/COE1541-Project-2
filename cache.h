@@ -54,6 +54,9 @@ void shift_LRU(struct cache_blk_t **, int, int);
 int cache_access(struct cache_t *, unsigned long, int);
 
 int getLogBase2(int num){
+    if (num == 1) {
+        return 0;
+    }
     int i = 1;
     while (num > 1) {
         num = num >> 1;
@@ -62,7 +65,7 @@ int getLogBase2(int num){
         }
         i++;
     }
-    
+
     return i;
 }
 
@@ -70,7 +73,7 @@ int calculateIndexFromAddress(unsigned long address, int numBitsforByteOffset, i
     int i;
     int val = 1;
     int totalOffset = numBitsforByteOffset + numBitsForWordOffset;
-    
+
     for(i = 1; i <= numBitsForIndex; i++){ //gets 2^index
         val = 2 * val;
     }
@@ -83,7 +86,7 @@ int calculateIndexFromAddress(unsigned long address, int numBitsforByteOffset, i
 void shift_LRU(struct cache_blk_t **associativeCaches, int index, int associativity)
 {
     int i;
-    
+
     for (i = 0; i < associativity; i++)
     {
         //updates LRU values for all valid blocks with LRU>0
@@ -161,6 +164,6 @@ int cache_access(struct cache_t *cp, unsigned long address, int access_type)
             cp->blocks[index][i].LRU -= 1; //shift down all other block's LRU value
         }
     }
-    
+
     return(HIGH_DIRTY * cp->mem_latency);
 }
