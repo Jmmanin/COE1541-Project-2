@@ -1,0 +1,6 @@
+
+ ** opening file sample.tr
++ Simulation terminates at cycle : 11542
+I-cache accesses 1000 and misses 296
+D-cache Read accesses 98 and misses 71
+D-cache Write accesses 298 and misses 146
