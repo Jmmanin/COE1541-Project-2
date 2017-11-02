@@ -1,6 +1,13 @@
+/*
+Jeremy Manin (Jmm350) and John Dott (Jkd28)
+COE1541 Melhem TuTh 4-5:15 PM
+Project 2- cache.h
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 
+//struct declerations
 struct cache_blk_t { /* note that no actual data will be stored in the cache */
     unsigned long tag;
     char valid;
@@ -40,6 +47,7 @@ struct cache_t * cache_create(int size, int blocksize, int assoc, int mem_latenc
     return C;
 }
 
+//function prototypes
 int getLogBase2(int);
 int calculateIndexFromAddress(unsigned long, int, int, int);
 void shift_LRU(struct cache_blk_t **, int, int);
@@ -54,28 +62,31 @@ int getLogBase2(int num){
         }
         i++;
     }
+    
+    return i;
 }
 
 int calculateIndexFromAddress(unsigned long address, int numBitsforByteOffset, int numBitsForWordOffset, int numBitsForIndex){
     int i;
     int val = 1;
     int totalOffset = numBitsforByteOffset + numBitsForWordOffset;
-    for(i = 1; i <= numBitsForIndex; i++){
+    
+    for(i = 1; i <= numBitsForIndex; i++){ //gets 2^index
         val = 2 * val;
     }
-    val = val - 1;
-    //printf("Address: %lx, totalOffset: %d\n", address, totalOffset);
-    //printf("Value: %x, Shifted Address: %lx\n", val, address >> totalOffset);
+    val = val - 1; //index = (2^index)-1 & totalOffset
     val = val & (address >> totalOffset);
-    //printf("CalculatedINDEX: %d\n", val);
+
     return val;
 }
 
 void shift_LRU(struct cache_blk_t **associativeCaches, int index, int associativity)
 {
     int i;
+    
     for (i = 0; i < associativity; i++)
     {
+        //updates LRU values for all valid blocks with LRU>0
         if ((associativeCaches[index][i].LRU != 0) && (associativeCaches[index][i].valid == 1))
         {
             associativeCaches[index][i].LRU -= 1;
@@ -85,28 +96,15 @@ void shift_LRU(struct cache_blk_t **associativeCaches, int index, int associativ
 
 int cache_access(struct cache_t *cp, unsigned long address, int access_type)
 {
-    //
-    // Based on "address", determine the set to access in cp and examine the blocks
-    // in the set to check hit/miss and update the golbal hit/miss statistics
-    // If a miss, determine the victim in the set to replace (LRU).
-    //
-    // The function should return the hit_latency, which is 0, in case of a hit.
-    // In case of a miss, the function should return mem_latency if no write back is needed.
-    // If a write back is needed, the function should return 2*mem_latency.
-    // access_type (0 for a read and 1 for a write) should be used to set/update the dirty bit.
-    // The LRU field of the blocks in the set accessed should also be updated.
     int i;
+
     int numBitsforByteOffset = 2; // This offset will always be 2 because there are 4 bytes per word
     int numBitsForWordOffset = getLogBase2(cp->blocksize/4);
-    //printf("BLOCKSIZE IS %d\n", cp->blocksize);
-    //printf("WORD OFFSET IS %d\n", numBitsForWordOffset);
     int numBitsForIndex = getLogBase2(cp->nsets);
     int numBitsForTag = 32 - numBitsForIndex - numBitsForWordOffset - numBitsforByteOffset;
 
     int index = calculateIndexFromAddress(address, numBitsforByteOffset, numBitsForWordOffset, numBitsForIndex);
-    //printf("Index: %d\n", index);
     int tag = address >> (32 - numBitsForTag);
-    //printf("Tag: %d\n", tag);
 
     for (i = 0; i < cp->assoc; i++)
     {
@@ -155,16 +153,14 @@ int cache_access(struct cache_t *cp, unsigned long address, int access_type)
             // Evict current value and replace with new block
             cp->blocks[index][i].valid = 1;
             cp->blocks[index][i].dirty = 0;
-            cp->blocks[index][i].LRU = cp->assoc - 1;
+            cp->blocks[index][i].LRU = cp->assoc - 1; //make block least recently used (assign highest LRU value)
             cp->blocks[index][i].tag = tag;
         }
         else
         {
-            cp->blocks[index][i].LRU -= 1;
+            cp->blocks[index][i].LRU -= 1; //shift down all other block's LRU value
         }
     }
-
+    
     return(HIGH_DIRTY * cp->mem_latency);
-
-return(0);
 }
