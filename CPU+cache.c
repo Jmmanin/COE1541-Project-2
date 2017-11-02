@@ -1,9 +1,8 @@
-/**************************************************************/
-/* CS/COE 1541
-   just compile with gcc -o pipeline pipeline.c
-   and execute using
-   ./pipeline  /afs/cs.pitt.edu/courses/1541/short_traces/sample.tr	0
-***************************************************************/
+/*
+Jeremy Manin (Jmm350) and John Dott (Jkd28)
+COE1541 Melhem TuTh 4-5:15 PM
+Project 2- CPU + cache
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
