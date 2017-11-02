@@ -357,9 +357,9 @@ int main(int argc, char **argv)
 
       //simulate cache access for loads and stores
       if ((pipeline[3] != NULL) && (pipeline[3]->type==ti_LOAD))
-         cycle_number = cycle_number + cache_access(D_cache, tr_entry->Addr, 0);
+         cycle_number = cycle_number + cache_access(D_cache, pipeline[3]->Addr, 0);
       if ((pipeline[3] != NULL) && (pipeline[3]->type==ti_STORE))
-         cycle_number = cycle_number + cache_access(D_cache, tr_entry->Addr, 1);
+         cycle_number = cycle_number + cache_access(D_cache, pipeline[3]->Addr, 1);
    }
 
    // Uninitialize the trace buffer
