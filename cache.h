@@ -5,7 +5,7 @@ struct cache_blk_t { /* note that no actual data will be stored in the cache */
   unsigned long tag;
   char valid;
   char dirty;
-  unsigned LRU;	/*to be used to build the LRU stack for the blocks in a cache set*/
+  unsigned int LRU;	/*to be used to build the LRU stack for the blocks in a cache set*/
 };
 
 struct cache_t {
